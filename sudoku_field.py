@@ -24,3 +24,13 @@ class sudoku_field(object):
                 tmp = tmp + str(i) + ' '
             ret = ret + tmp + "\n"
         return ret
+
+    def solve():
+        return _remove_possibilities()
+
+
+
+    def _remove_possibilities():
+        result = False
+        # TODO implement this function
+        return result
