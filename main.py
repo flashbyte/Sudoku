@@ -4,7 +4,7 @@ import sudoku_field
 
 def main():
     my_suduko = sudoku_field.sudoku_field()
-    my_suduko.print_me()
+    print my_suduko
 
 if __name__ == '__main__':
     main()

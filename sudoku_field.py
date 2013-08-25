@@ -8,9 +8,11 @@ class sudoku_field(object):
 
         self.__filed__ = [[num_field.num_field()] * 9] * 9
 
-    def print_me(self):
+    def __str__(self):
+        ret = ""
         for line in self.__filed__:
             tmp = ""
             for i in line:
                 tmp = tmp + str(i) + ' '
-            print tmp
+            ret = ret + tmp + "\n"
+        return ret
