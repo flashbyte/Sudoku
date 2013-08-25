@@ -16,16 +16,22 @@ class sudoku_field(object):
         self._field[row][col].set_num(value)
 
     def __str__(self):
-        ret = ""
-
+        ret = "+---------board---------+\t+---------debug---------+\n"
         for row in range(9):
+            ret += "| "
             for col in range(9):
                 ret += str(self._field[row][col]) + ' '
-            ret += "\t\t"
+                if col%3 == 2 and col < 8:
+                    ret += "| "
+            ret += "|\t| "
             for col in range(9):
                 ret += str(len(self._field[row][col].get_set())) + ' '
+                if col%3 == 2:
+                    ret += "| "
             ret += "\n"
-
+            if row%3 == 2 and row < 8:
+                ret += "|-------+-------+-------|\t|-------+-------+-------|\n"
+        ret += "+-----------------------+\t+-----------------------+"
         return ret
 
     def solve(self):
