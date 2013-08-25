@@ -19,8 +19,8 @@ class num_field(object):
     def remove_posibility(self, value):
         if value in self._could_be_number:
             self._could_be_number.remove(value)
-            if len(self._could_be_number) == 1:
-                self.set_num(self._could_be_number.pop())
+            #if len(self._could_be_number) == 1:
+            #    self.set_num(self._could_be_number.pop())
             return True
         return False
 
@@ -32,3 +32,9 @@ class num_field(object):
 
     def is_solved(self):
         return self._is_solved
+
+    def apply(self):
+        if len(self._could_be_number) == 1:
+            self.set_num(self._could_be_number.pop())
+            return True
+        return False

@@ -1,5 +1,7 @@
 import num_field
-#import sets
+import logging
+import sys
+
 
 class sudoku_field(object):
     """simple"""
@@ -34,13 +36,55 @@ class sudoku_field(object):
         ret += "+-----------------------+\t+-----------------------+"
         return ret
 
+    def validate(self):
+        valid = True
+        #Validate rows
+        for row in range(9):
+            my_set = set()
+            for col in range(9):
+                if self._field[row][col].is_solved():
+                    if self._field[row][col].get_num() in my_set:
+                        valid = False
+                    else:
+                        my_set.add(self._field[row][col].get_num())
+        #Validate cols
+        for col in range(9):
+            my_set = set()
+            for row in range(9):
+                if self._field[row][col].is_solved():
+                    if self._field[row][col].get_num() in my_set:
+                        valid = False
+                    else:
+                        my_set.add(self._field[row][col].get_num())
+
+        #Validate block
+        # TODO Validate block
+        return valid
+
+    def apply(self):
+        result = False
+        for row in range(9):
+            for col in range(9):
+                if self._field[row][col].apply():
+                    result = True
+        return result
+
     def solve(self):
         changed = True
         while changed:
             changed = False
+            befor = str(self)
             if self._remove_possibilities():
                 changed = True
+            befor = str(self)
             if self._scanning():
+                changed = True
+            if not self.validate():
+                logging.debug(befor)
+                logging.debug("scanning messed up")
+                logging.debug(str(self))
+                sys.exit(2)
+            if self.apply():
                 changed = True
 
     def _remove_possibilities_from_row(self, row):
