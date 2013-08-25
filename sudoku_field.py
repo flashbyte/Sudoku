@@ -8,6 +8,10 @@ class sudoku_field(object):
 
         self.__filed__ = [[num_field.num_field()] * 9] * 9
 
+    def set_field(self, row, col, value):
+        self.__filed__[row][col].is_solved = True
+        self.__filed__[row][col].__could_be_number__ = [value]
+
     def __str__(self):
         ret = ""
         for line in self.__filed__:
