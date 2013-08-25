@@ -29,7 +29,10 @@ class sudoku_field(object):
         return ret
 
     def solve(self):
-        return self._remove_possibilities() or self._scanning()
+        while self._remove_possibilities():
+            pass
+        #while self._scanning():
+        #    pass
 
     def _remove_possibilities_from_row(self, row):
         result = False
