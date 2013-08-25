@@ -21,24 +21,27 @@ class sudoku_field(object):
             ret += "| "
             for col in range(9):
                 ret += str(self._field[row][col]) + ' '
-                if col%3 == 2 and col < 8:
+                if col % 3 == 2 and col < 8:
                     ret += "| "
             ret += "|\t| "
             for col in range(9):
                 ret += str(len(self._field[row][col].get_set())) + ' '
-                if col%3 == 2:
+                if col % 3 == 2:
                     ret += "| "
             ret += "\n"
-            if row%3 == 2 and row < 8:
+            if row % 3 == 2 and row < 8:
                 ret += "|-------+-------+-------|\t|-------+-------+-------|\n"
         ret += "+-----------------------+\t+-----------------------+"
         return ret
 
     def solve(self):
-        while self._remove_possibilities():
-            pass
-        #while self._scanning():
-        #    pass
+        changed = True
+        while changed:
+            changed = False
+            if self._remove_possibilities():
+                changed = True
+            if self._scanning():
+                changed = True
 
     def _remove_possibilities_from_row(self, row):
         result = False
@@ -66,7 +69,7 @@ class sudoku_field(object):
         for col in range(9):
             if self._remove_possibilities_from_col(col):
                 result = True
-
+        #Todo: remove from Block
         return result
 
     def _scanning_row(self, row):
@@ -91,9 +94,36 @@ class sudoku_field(object):
 
         return True
 
+    def _scanning_col(self, col):
+        #Make Union
+        my_union = set()
+        for row in range(9):
+            my_union = my_union.union(self._field[row][col].get_set())
+
+        #del intersec
+        for row in range(9):
+            for row_intersect in range(row+1, 9):
+                my_intersect = self._field[row][col].get_set() & self._field[row_intersect][col].get_set()
+                my_union = my_union - my_intersect
+
+        if len(my_union) == 0:
+            return False
+
+        for value in my_union:
+            for row in range(9):
+                if value in self._field[row][col].get_set():
+                    self._field[row][col].set_num(value)
+
+        return True
+
     def _scanning(self):
         result = False
         # Scanning Rows
         for row in range(9):
-            result = result or self._scanning_row(row)
+            if self._scanning_row(row):
+                result = True
+        for col in range(9):
+            if self._scanning_col(col):
+                result = True
+        #TODO solve blocks
         return result
