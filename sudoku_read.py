@@ -1,6 +1,5 @@
 import sudoku_field
 
-
 """
 #this is a test
 grid=[[0,0,0, 0,0,2, 0,0,0], # 1
@@ -14,10 +13,8 @@ grid=[[0,0,0, 0,0,2, 0,0,0], # 1
       [0,0,0, 0,0,8, 0,0,0], # 7
       [0,7,0, 0,0,9, 0,0,0], # 8
       [0,0,0, 0,0,7, 0,0,0]] # 9
-
 """
 
-"""
 #this is an easy one
 grid=[[0,0,7, 0,2,1, 5,3,0], # 1
       [2,0,5, 0,0,0, 0,0,0], # 2
@@ -31,8 +28,8 @@ grid=[[0,0,7, 0,2,1, 5,3,0], # 1
       [0,0,0, 0,0,0, 9,0,8], # 8
       [0,6,9, 3,7,0, 4,0,0]] # 9
 
-"""
 
+"""
 #this is a hard one
 grid=[[6,0,0, 7,8,0, 3,0,0], # 1
       [3,9,7, 0,0,0, 0,8,0], # 2
@@ -45,11 +42,13 @@ grid=[[6,0,0, 7,8,0, 3,0,0], # 1
       [0,0,1, 0,4,0, 0,7,2], # 7
       [0,4,5, 8,0,0, 6,1,0], # 8
       [0,0,0, 5,0,1, 0,0,0]] # 9
+"""
 
 
 def read_soduko_from_file(filename):
     my_sudoku = sudoku_field.sudoku_field()
     for row in range(9):
         for col in range(9):
-            my_sudoku.set_field(row, col, grid[row][col])
+            if grid[row][col] != 0:
+              my_sudoku.set_field(row, col, grid[row][col])
     return my_sudoku
