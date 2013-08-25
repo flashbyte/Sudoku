@@ -6,11 +6,7 @@ my_suduko = sudoku_read.read_soduko_from_file('/tmp/some_file')
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
-    print ('???Sudoku to Solve???')
-    print (my_suduko)
     my_suduko.solve()
-    print ('!!!Sudoku Solved!!!')
-    print (my_suduko)
 
 if __name__ == '__main__':
     main()

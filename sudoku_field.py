@@ -19,7 +19,8 @@ class sudoku_field(object):
         self._field[row][col].set_num(value)
 
     def __str__(self):
-        ret = "+---------board---------+\t+---------debug---------+\n"
+        ret = '\n'
+        ret += "+---------board---------+\t+---------debug---------+\n"
         for row in range(9):
             ret += "| "
             for col in range(9):
@@ -55,30 +56,43 @@ class sudoku_field(object):
                 my_list.append(self._field[row][col])
         return my_list
 
+    ''' Validated if field is a valid sudoku.'''
     def validate(self):
-        valid = True
         #Validate rows
         for row in range(9):
             my_set = set()
             for col in range(9):
                 if self._field[row][col].is_solved():
                     if self._field[row][col].get_num() in my_set:
-                        valid = False
+                        logging.error('Row %s is broken' % (row))
+                        return False
                     else:
                         my_set.add(self._field[row][col].get_num())
+
         #Validate cols
         for col in range(9):
             my_set = set()
             for row in range(9):
                 if self._field[row][col].is_solved():
                     if self._field[row][col].get_num() in my_set:
-                        valid = False
+                        logging.error('Col %s is broken' % (col))
+                        return False
                     else:
                         my_set.add(self._field[row][col].get_num())
 
         #Validate block
-        # TODO Validate block
-        return valid
+        for block in range(1, 10):
+            block_list = self._get_block_as_list(block)
+            solved_set = set()
+            for field in block_list:
+                if field.is_solved():
+                    if field.get_num() in solved_set:
+                        logging.error('Block %s is broken' % (block))
+                        return False
+                    else:
+                        solved_set.add(field.get_num())
+
+        return True
 
     def apply(self):
         result = False
