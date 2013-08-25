@@ -49,5 +49,7 @@ grid=[[6,0,0, 7,8,0, 3,0,0], # 1
 
 def read_soduko_from_file(filename):
     my_sudoku = sudoku_field.sudoku_field()
-    my_sudoku.set_field(3, 4, 9)
+    for row in range(9):
+        for col in range(9):
+            my_sudoku.set_field(row, col, grid[row][col])
     return my_sudoku
