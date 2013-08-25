@@ -25,12 +25,15 @@ class sudoku_field(object):
             ret = ret + tmp + "\n"
         return ret
 
-    def solve():
-        return _remove_possibilities()
+    def solve(self):
+        return self._remove_possibilities() & self._scanning()
 
+    def _remove_possibilities(self):
+        result = False
+        # TODO implement this function
+        return result
 
-
-    def _remove_possibilities():
+    def _scanning(self):
         result = False
         # TODO implement this function
         return result
