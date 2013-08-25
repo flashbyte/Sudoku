@@ -104,28 +104,10 @@ class sudoku_field(object):
 
     def solve(self):
         changed = True
+        solver_list = [self._remove_possibilities, self._scanning]
         while changed:
-            changed = False
-            befor = str(self)
-            if self._remove_possibilities():
-                changed = True
-            if not self.validate():
-                logging.debug(befor)
-                logging.debug("remove messed up")
-                logging.debug(str(self))
-                sys.exit(2)
-
-            befor = str(self)
-            befor_set = str(self._field[6][5].get_set())
-            if self._scanning():
-                changed = True
-            if not self.validate():
-                logging.debug(befor)
-                logging.debug(befor_set)
-                logging.debug("scanning messed up")
-                logging.debug(str(self))
-                sys.exit(2)
-
+            for solver in solver_list:
+                solver()
             if self.apply():
                 changed = True
 
