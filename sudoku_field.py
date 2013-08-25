@@ -3,6 +3,7 @@ import logging
 import sys
 
 
+# TODO: findout if there is something like for_each_for_echh
 class sudoku_field(object):
     """simple"""
 
@@ -200,6 +201,7 @@ class sudoku_field(object):
         return True
 
     def _scanning_block(self, block_id):
+        #FIXME: Breaks Stuff
         my_list = self._get_block_as_list(block_id)
         #Make Union
         my_union = set()
