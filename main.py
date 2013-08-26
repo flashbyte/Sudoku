@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-import sudoku_read
 import logging
-my_suduko = sudoku_read.read_soduko_from_testcase(2)
+from sudoku_reader import read_soduko_from_testcase
+
+
+my_suduko = read_soduko_from_testcase(1)
 
 
 def main():
