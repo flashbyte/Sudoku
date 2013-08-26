@@ -1,8 +1,9 @@
-import logging
+
+
 class num_field(object):
 
     def __init__(self):
-        self._could_be_number = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+        self._could_be_number = set([1, 2, 3, 4, 5, 6, 7, 8, 9])
         self._is_solved = False
         self._value = 0
 
@@ -18,12 +19,14 @@ class num_field(object):
 
     def set_possibilities(self, possibilities):
         self._could_be_number = possibilities
+        if len(self._could_be_number) == 1:
+            self.set_num(self._could_be_number.pop())
 
     def remove_posibility(self, value):
         if value in self._could_be_number:
             self._could_be_number.remove(value)
-            return True
-        return False
+        if len(self._could_be_number) == 1:
+            self.set_num(self._could_be_number.pop())
 
     def get_set(self):
         return self._could_be_number
@@ -33,4 +36,8 @@ class num_field(object):
 
     def is_solved(self):
         return self._is_solved
+
+    def update(self):
+        if len(self._could_be_number) == 1:
+            self.set_num(self._could_be_number.pop())
 

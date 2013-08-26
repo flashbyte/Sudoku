@@ -3,15 +3,15 @@ import logging
 from sudoku_reader import read_soduko_from_testcase
 
 
-my_suduko = read_soduko_from_testcase(2)
+my_suduko = read_soduko_from_testcase(1)
 
 
 def main():
     logging.basicConfig(level=logging.DEBUG)
     print('Solving: %s' % (my_suduko.description))
     print(my_suduko)
-    solved_sudoku = my_suduko._recursivly()
-    print(solved_sudoku)
+    my_suduko.solve()
+    print(my_suduko)
 
 if __name__ == '__main__':
     main()
