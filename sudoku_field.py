@@ -1,6 +1,7 @@
 import num_field
 import logging
 import sys
+import copy
 
 
 # TODO: findout if there is something like for_each_for_echh
@@ -18,31 +19,42 @@ class sudoku_field(object):
 
     #TODO: constuctor with takes description and field
 
+    def __str__(self):
+        ret = ""
+        ret += "+---------board---------+\n"
+        for row in self._field:
+            r1 = "%s %s %s" % (str(row[0]), str(row[1]), str(row[2]))
+            r2 = "%s %s %s" % (str(row[3]), str(row[4]), str(row[5]))
+            r3 = "%s %s %s" % (str(row[6]), str(row[7]), str(row[8]))
+            ret += "| %s | %s | %s |\n" % (r1, r2, r3)
+        ret += "+-----------------------+\n"
+        return ret
+
     def set_field(self, row, col, value):
         self._field[row][col].set_num(value)
 
     def set_description(self, description):
         self.description = description
 
-    def __str__(self):
-        ret = '\n'
-        ret += "+---------board---------+\t+---------debug---------+\n"
+    def debug_board(self, befor_stat):
+        header = "+---------befor---------+\t+----------now----------+"
+        footer = "+-----------------------+\t+-----------------------+"
+        line = "| %s %s %s | %s %s %s | %s %s %s |\t| %s %s %s | %s %s %s | %s %s %s |"
+        line2 = "| ----- | ----- | ----- |\t| ----- | ----- | ----- |"
+        board = "%s\n%s\n%s\n"
+
+        board_str = ""
         for row in range(9):
-            ret += "| "
-            for col in range(9):
-                ret += str(self._field[row][col]) + ' '
-                if col % 3 == 2 and col < 8:
-                    ret += "| "
-            ret += "|\t| "
-            for col in range(9):
-                ret += str(len(self._field[row][col].get_set())) + ' '
-                if col % 3 == 2:
-                    ret += "| "
-            ret += "\n"
-            if row % 3 == 2 and row < 8:
-                ret += "|-------+-------+-------|\t|-------+-------+-------|\n"
-        ret += "+-----------------------+\t+-----------------------+"
-        return ret
+            befor_row = befor_stat._field[row]
+            now_row = self._field[row]
+            values = tuple(befor_row) + tuple(now_row)
+            board_str += line % (values)
+            if row != 8:
+                board_str += '\n'
+            if row in (2, 5):
+                board_str += line2 + '\n'
+
+        return board % (header, board_str, footer)
 
     def _get_block_as_list(self, block_id):
         block_hash = {
@@ -106,16 +118,15 @@ class sudoku_field(object):
 
         return True
 
-    def apply(self):
-        result = False
-        for row in range(9):
-            for col in range(9):
-                if self._field[row][col].apply():
-                    result = True
-        return result
+    """ Sets numbers wher only one posibility left """
+    def _update_field(self):
+        for row in self._field:
+            for element in row:
+                if len(element.get_set()) == 1:
+                    element.set_num(element.get_set().pop())
 
-    def solve(self):
-        solver_list = [
+    def _remove_possibilities(self):
+        solver_remover_list = [
             self._remove_possibilities_from_rows,
             self._remove_possibilities_from_cols,
             self._remove_possibilities_from_blocks,
@@ -123,17 +134,41 @@ class sudoku_field(object):
         changed = True
         while changed:
             changed = False
-            for solver in solver_list:
+            for solver in solver_remover_list:
                 if solver():
                     changed = True
                     logging.debug('Solver %s changed something', solver.im_func)
+                    self._update_field()
                 if not self.validate():
                     logging.error('Solver %s messed up', solver.im_func)
                     sys.exit(2)
 
-            if self.apply():
-                changed = True
+    def _scanning(self):
+        solver_scanner_list = [
+            self._scanning_rows,
+            self._scanning_cols,
+            self._scanning_blocks,
+        ]
+        for solver in solver_scanner_list:
+            if solver():
+                logging.debug('Solver %s changed something', solver.im_func)
+                self._update_field()
+                if not self.validate():
+                    logging.error('Solver %s messed up', solver.im_func)
+                    sys.exit(2)
+                return True
+        return False
 
+    """ Solver functions sould only work on posibilities NOT on the number value
+    the number value is updated by self._update_field """
+    def solve(self):
+        changed = True
+        while changed:
+            changed = False
+            if self._remove_possibilities():
+                changed = True
+            if self._scanning():
+                changed = True
     # -------- Remover algorithems --------
     """ Removes all posibilities from a bulk where bulk could be a row, a col or a block """
     def _remove_possibilities_from_bulk(self, bulk):
@@ -169,87 +204,61 @@ class sudoku_field(object):
         return changed
 
     # -------- Scanner algorithmes --------
-    def _scanning_row(self, row):
-        #Make Union
-        my_union = set()
-        for col in range(9):
-            my_union = my_union.union(self._field[row][col].get_set())
-
-        #del intersec
-        for col in range(9):
-            for col_intersect in range(col+1, 9):
-                my_intersect = self._field[row][col].get_set() & self._field[row][col_intersect].get_set()
-                my_union = my_union - my_intersect
-
-        if len(my_union) == 0:
+    def _scanning_bulk(self, bulk):
+        changed = False
+        # Make Union
+        bulk_union = set()
+        for element in bulk:
+            bulk_union = bulk_union.union(element.get_set())
+        # Make intesec list
+        intesec_list = []
+        for element in bulk:
+            for element_intersec in bulk:
+                if element != element_intersec:
+                    intesec_list.append(element.get_set() & element_intersec.get_set())
+        intesec_list = [element_intersec for element_intersec in intesec_list if len(element_intersec) != 0]
+        # Make result set (union from everything minus every intesection)
+        result_set = bulk_union
+        for intersec in intesec_list:
+            result_set = result_set - intersec
+        # Nothing found ;-(
+        if len(result_set) == 0:
             return False
+        else:
+            changed = True
 
-        for value in my_union:
-            for col in range(9):
-                if value in self._field[row][col].get_set():
-                    self._field[row][col].set_num(value)
+        # Set found uniq numbers
+        for num in result_set:
+            for element in bulk:
+                if num in element.get_set():
+                    my_set = set()
+                    my_set.add(num)
+                    element.set_possibilities(my_set)
 
-        return True
+        return changed
 
-    def _scanning_col(self, col):
-        #Make Union
-        my_union = set()
-        for row in range(9):
-            my_union = my_union.union(self._field[row][col].get_set())
+    def _scanning_rows(self):
+        changed = False
+        for row in self._field:
+            if self._scanning_bulk(row):
+                changed = True
+        return changed
 
-        #del intersec
-        for row in range(9):
-            for row_intersect in range(row+1, 9):
-                my_intersect = self._field[row][col].get_set() & self._field[row_intersect][col].get_set()
-                my_union = my_union - my_intersect
-
-        if len(my_union) == 0:
-            return False
-
-        for value in my_union:
-            for row in range(9):
-                if value in self._field[row][col].get_set():
-                    self._field[row][col].set_num(value)
-
-        return True
-
-    def _scanning_block(self, block_id):
-        #FIXME: Breaks Stuff
-        my_list = self._get_block_as_list(block_id)
-        #Make Union
-        my_union = set()
-        for element in my_list:
-            my_union = my_union.union(element.get_set())
-        #make intersec list
-        intersec_list = []
-        for element in my_list:
-            for element_intersect in my_list:
-                if element == element_intersect:
-                    continue
-                intersec_list.append(element.get_set() & element_intersect.get_set())
-        #remove intesect
-        for element in intersec_list:
-            my_union = my_union - element
-
-        if len(my_union) == 0:
-            return False
-
-        for uniq in my_union:
-            for element in my_list:
-                if uniq in element.get_set():
-                    element.set_num(uniq)
-
-        return True
-
-    def _scanning(self):
-        # Scanning Rows
-        for row in range(9):
-            if self._scanning_row(row):
-                return True
+    def _scanning_cols(self):
+        changed = False
         for col in range(9):
-            if self._scanning_col(col):
-                return True
-        for block in range(1, 10):
-            if self._scanning_block(block):
-                return True
-        return False
+            col_list = self._get_col_as_list(col)
+            if self._scanning_bulk(col_list):
+                changed = True
+        return changed
+
+    def _scanning_blocks(self):
+        changed = False
+        for block_id in range(1, 10):
+            block = self._get_block_as_list(block_id)
+            if self._scanning_bulk(block):
+                changed = True
+        return changed
+
+
+
