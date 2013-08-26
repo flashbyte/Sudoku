@@ -62,6 +62,12 @@ class sudoku_field(object):
                 my_list.append(self._field[row][col])
         return my_list
 
+    def _get_col_as_list(self, col):
+        col_list = []
+        for row in self._field:
+            col_list.append(row[col])
+        return col_list
+
     ''' Validated if field is a valid sudoku.'''
     def validate(self):
         #Validate rows
@@ -128,55 +134,41 @@ class sudoku_field(object):
             if self.apply():
                 changed = True
 
-    def _remove_possibilities_from_rows(self):
+    # -------- Remover algorithems --------
+    """ Removes all posibilities from a bulk where bulk could be a row, a col or a block """
+    def _remove_possibilities_from_bulk(self, bulk):
         changed = False
-        for row in range(9):
-            if self._remove_possibilities_from_row(row):
-                changed = True
+        for element in bulk:
+            if element.is_solved():
+                for element_remove in bulk:
+                    if element_remove.remove_posibility(element.get_num()):
+                        changed = True
         return changed
 
-    def _remove_possibilities_from_row(self, row):
-        result = False
-        for col in range(9):
-            if self._field[row][col].is_solved():
-                for col_remove in range(9):
-                    if self._field[row][col_remove].remove_posibility(self._field[row][col].get_num()):
-                        result = True
-        return result
+    def _remove_possibilities_from_rows(self):
+        changed = False
+        for row in self._field:
+            if self._remove_possibilities_from_bulk(row):
+                changed = True
+        return changed
 
     def _remove_possibilities_from_cols(self):
         changed = False
         for col in range(9):
-            if self._remove_possibilities_from_col(col):
+            col_list = self._get_col_as_list(col)
+            if self._remove_possibilities_from_bulk(col_list):
                 changed = True
         return changed
-
-    def _remove_possibilities_from_col(self, col):
-        result = False
-        for row in range(9):
-            if self._field[row][col].is_solved():
-                for row_remove in range(9):
-                    if self._field[row_remove][col].remove_posibility(self._field[row][col].get_num()):
-                        result = True
-        return result
 
     def _remove_possibilities_from_blocks(self):
         changed = False
-        for block in range(1, 10):
-            if self._remove_possibilities_from_block(block):
+        for block_id in range(1, 10):
+            block = self._get_block_as_list(block_id)
+            if self._remove_possibilities_from_bulk(block):
                 changed = True
         return changed
 
-    def _remove_possibilities_from_block(self, block_id):
-        result = False
-        my_list = self._get_block_as_list(block_id)
-        for element in my_list:
-            if element.is_solved():
-                for element_remove in my_list:
-                    if element_remove.remove_posibility(element.get_num()):
-                        result = True
-        return result
-
+    # -------- Scanner algorithmes --------
     def _scanning_row(self, row):
         #Make Union
         my_union = set()
