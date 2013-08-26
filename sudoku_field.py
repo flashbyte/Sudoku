@@ -9,14 +9,20 @@ class sudoku_field(object):
 
     def __init__(self):
         self._field = []
+        self.description = ''
         for rows in range(9):
             row = []
             for cols in range(9):
                 row.append(num_field.num_field())
             self._field.append(row)
 
+    #TODO: constuctor with takes description and field
+
     def set_field(self, row, col, value):
         self._field[row][col].set_num(value)
+
+    def set_description(self, description):
+        self.description = description
 
     def __str__(self):
         ret = '\n'
@@ -103,13 +109,31 @@ class sudoku_field(object):
         return result
 
     def solve(self):
+        solver_list = [
+            self._remove_possibilities_from_rows,
+            self._remove_possibilities_from_cols,
+            self._remove_possibilities_from_blocks,
+        ]
         changed = True
-        solver_list = [self._remove_possibilities, self._scanning]
         while changed:
+            changed = False
             for solver in solver_list:
-                solver()
+                if solver():
+                    changed = True
+                    logging.debug('Solver %s changed something', solver.im_func)
+                if not self.validate():
+                    logging.error('Solver %s messed up', solver.im_func)
+                    sys.exit(2)
+
             if self.apply():
                 changed = True
+
+    def _remove_possibilities_from_rows(self):
+        changed = False
+        for row in range(9):
+            if self._remove_possibilities_from_row(row):
+                changed = True
+        return changed
 
     def _remove_possibilities_from_row(self, row):
         result = False
@@ -120,6 +144,13 @@ class sudoku_field(object):
                         result = True
         return result
 
+    def _remove_possibilities_from_cols(self):
+        changed = False
+        for col in range(9):
+            if self._remove_possibilities_from_col(col):
+                changed = True
+        return changed
+
     def _remove_possibilities_from_col(self, col):
         result = False
         for row in range(9):
@@ -129,6 +160,13 @@ class sudoku_field(object):
                         result = True
         return result
 
+    def _remove_possibilities_from_blocks(self):
+        changed = False
+        for block in range(1, 10):
+            if self._remove_possibilities_from_block(block):
+                changed = True
+        return changed
+
     def _remove_possibilities_from_block(self, block_id):
         result = False
         my_list = self._get_block_as_list(block_id)
@@ -137,19 +175,6 @@ class sudoku_field(object):
                 for element_remove in my_list:
                     if element_remove.remove_posibility(element.get_num()):
                         result = True
-        return result
-
-    def _remove_possibilities(self):
-        result = False
-        for row in range(9):
-            if self._remove_possibilities_from_row(row):
-                result = True
-        for col in range(9):
-            if self._remove_possibilities_from_col(col):
-                result = True
-        for block in range(1, 10):
-            if self._remove_possibilities_from_block(block):
-                result = True
         return result
 
     def _scanning_row(self, row):
