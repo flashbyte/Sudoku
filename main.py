@@ -10,8 +10,8 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
     print('Solving: %s' % (my_suduko.description))
     print(my_suduko)
-    my_suduko.solve()
-    print(my_suduko)
+    solved_sudoku = my_suduko._recursivly()
+    print(solved_sudoku)
 
 if __name__ == '__main__':
     main()

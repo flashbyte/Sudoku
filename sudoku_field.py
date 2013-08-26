@@ -16,17 +16,15 @@ class sudoku_field(object):
             for cols in range(9):
                 row.append(num_field.num_field())
             self._field.append(row)
-
     #TODO: constuctor with takes description and field
 
     def __str__(self):
         ret = ""
         ret += "+---------board---------+\n"
-        for row in self._field:
-            r1 = "%s %s %s" % (str(row[0]), str(row[1]), str(row[2]))
-            r2 = "%s %s %s" % (str(row[3]), str(row[4]), str(row[5]))
-            r3 = "%s %s %s" % (str(row[6]), str(row[7]), str(row[8]))
-            ret += "| %s | %s | %s |\n" % (r1, r2, r3)
+        for row in range(9):
+            ret += "| %s %s %s | %s %s %s | %s %s %s |\n" % (tuple(self._field[row]))
+            if row in (2, 5):
+                ret += "| ----- | ----- | ----- |\n"
         ret += "+-----------------------+\n"
         return ret
 
@@ -124,6 +122,27 @@ class sudoku_field(object):
             for element in row:
                 if len(element.get_set()) == 1:
                     element.set_num(element.get_set().pop())
+
+    def is_solved(self):
+        for row in range(9):
+            for col in range(9):
+                if len(self._field[row][col].get_set()) != 0:
+                    return False
+        return True
+
+    def _recursivly(self):
+        self.solve()
+        if self.is_solved():
+            return self
+
+        for row in range(9):
+            for col in range(9):
+                if len(self._field[row][col].get_set()) != 0:
+                    for each in self._field[row][col].get_set():
+                        new_soduko = copy.deepcopy(self)
+                        new_soduko._field[row][col].set_num(each)
+                        if new_soduko._recursivly():
+                            return new_soduko
 
     def _remove_possibilities(self):
         solver_remover_list = [
