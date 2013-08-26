@@ -8,15 +8,19 @@ import copy
 class sudoku_field(object):
     """simple"""
 
-    def __init__(self):
+    def __init__(self, description='', sudoku=None):
         self._field = []
-        self.description = ''
+        self.description = description
         for rows in range(9):
             row = []
             for cols in range(9):
                 row.append(num_field.num_field())
             self._field.append(row)
-    #TODO: constuctor with takes description and field
+        if sudoku:
+            for row in range(9):
+                for col in range(9):
+                    if sudoku[row][col] != 0:
+                        self.set_field(row, col, sudoku[row][col])
 
     def __str__(self):
         ret = ""
@@ -30,9 +34,6 @@ class sudoku_field(object):
 
     def set_field(self, row, col, value):
         self._field[row][col].set_num(value)
-
-    def set_description(self, description):
-        self.description = description
 
     def debug_board(self, befor_stat):
         header = "+---------befor---------+\t+----------now----------+"
@@ -78,6 +79,9 @@ class sudoku_field(object):
             col_list.append(row[col])
         return col_list
 
+    def _get_row_as_list(self, row):
+        return self._field[row]
+
     ''' Validated if field is a valid sudoku.'''
     def validate(self):
         #Validate rows
@@ -116,12 +120,11 @@ class sudoku_field(object):
 
         return True
 
-    """ Sets numbers wher only one posibility left """
+    """ Sets numbers where only one posibility left """
     def _update_field(self):
         for row in self._field:
             for element in row:
-                if len(element.get_set()) == 1:
-                    element.set_num(element.get_set().pop())
+                element.update()
 
     def is_solved(self):
         for row in range(9):
@@ -188,6 +191,7 @@ class sudoku_field(object):
                 changed = True
             if self._scanning():
                 changed = True
+
     # -------- Remover algorithems --------
     """ Removes all posibilities from a bulk where bulk could be a row, a col or a block """
     def _remove_possibilities_from_bulk(self, bulk):
@@ -278,6 +282,3 @@ class sudoku_field(object):
             if self._scanning_bulk(block):
                 changed = True
         return changed
-
-
-
