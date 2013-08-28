@@ -32,6 +32,9 @@ class sudoku_field(object):
         ret += "+-----------------------+\n"
         return ret
 
+    def __unicode__(self):
+        return self.__str__()
+
     def set_field(self, row, col, value):
         self._field[row][col].set_num(value)
 
@@ -120,12 +123,6 @@ class sudoku_field(object):
 
         return True
 
-    """ Sets numbers where only one posibility left """
-    def _update_field(self):
-        for row in self._field:
-            for element in row:
-                element.update()
-
     def is_solved(self):
         for row in range(9):
             for col in range(9):
@@ -147,23 +144,20 @@ class sudoku_field(object):
                         if new_soduko._recursivly():
                             return new_soduko
 
-    def _remove_possibilities(self):
+    def _update_possibilities(self):
         solver_remover_list = [
             self._remove_possibilities_from_rows,
             self._remove_possibilities_from_cols,
             self._remove_possibilities_from_blocks,
         ]
-        changed = True
-        while changed:
-            changed = False
-            for solver in solver_remover_list:
-                if solver():
-                    changed = True
-                    logging.debug('Solver %s changed something', solver.im_func)
-                    self._update_field()
-                if not self.validate():
-                    logging.error('Solver %s messed up', solver.im_func)
-                    sys.exit(2)
+        changed = False
+        for solver in solver_remover_list:
+            if solver():
+                changed = True
+            if not self.validate():
+                logging.error('%s medded up %s', solver)
+                sys.exit(2)
+        return changed
 
     def _scanning(self):
         solver_scanner_list = [
@@ -174,7 +168,6 @@ class sudoku_field(object):
         for solver in solver_scanner_list:
             if solver():
                 logging.debug('Solver %s changed something', solver.im_func)
-                self._update_field()
                 if not self.validate():
                     logging.error('Solver %s messed up', solver.im_func)
                     sys.exit(2)
@@ -187,10 +180,11 @@ class sudoku_field(object):
         changed = True
         while changed:
             changed = False
-            if self._remove_possibilities():
-                changed = True
+            self._update_possibilities()
             if self._scanning():
                 changed = True
+            if self.is_solved():
+                return
 
     # -------- Remover algorithems --------
     """ Removes all posibilities from a bulk where bulk could be a row, a col or a block """

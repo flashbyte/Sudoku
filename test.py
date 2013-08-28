@@ -32,6 +32,7 @@ class TestNumField(unittest.TestCase):
         self.assertTrue(self.field._is_solved)
         self.assertEqual(self.field._value, 4)
 
+    # TODo: check return value
     def test_remove_posibility(self):
         self.field.remove_posibility(5)
         self.assertEqual((len(self.field._could_be_number)), 8)
@@ -92,8 +93,8 @@ class TestSudokuField(unittest.TestCase):
         self.field.set_field(0, 0, 3)
         self.assertFalse(self.field.validate())
 
-    def test_update_field(self):
-        self.field._update_field()
+    def test_update_possibilities(self):
+        self.field._update_possibilities()
         self.assertSetEqual(set([4, 6, 9]), self.field._field[0][0].get_set())
 
 if __name__ == '__main__':

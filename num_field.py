@@ -25,8 +25,10 @@ class num_field(object):
     def remove_posibility(self, value):
         if value in self._could_be_number:
             self._could_be_number.remove(value)
-        if len(self._could_be_number) == 1:
-            self.set_num(self._could_be_number.pop())
+            if len(self._could_be_number) == 1:
+                self.set_num(self._could_be_number.pop())
+            return True
+        return False
 
     def get_set(self):
         return self._could_be_number
