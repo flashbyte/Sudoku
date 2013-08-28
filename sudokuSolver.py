@@ -23,7 +23,7 @@ def main():
     if args.list_testcases:
         for testcases_id in range(len(sudoku_testcases)):
             testc = read_soduko_from_testcase(testcases_id)
-            print ("---- %s ----" % (testc.description))
+            print ("---- %s ---- %d" % (testc.description, testcases_id))
             print (testc)
 
     # Sudoku file/number

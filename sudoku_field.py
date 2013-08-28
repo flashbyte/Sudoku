@@ -141,6 +141,7 @@ class sudoku_field(object):
                     for each in self._field[row][col].get_set():
                         new_soduko = copy.deepcopy(self)
                         new_soduko._field[row][col].set_num(each)
+                        new_soduko._update_possibilities()
                         if new_soduko._recursivly():
                             return new_soduko
 
