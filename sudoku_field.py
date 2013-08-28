@@ -167,9 +167,9 @@ class sudoku_field(object):
         ]
         for solver in solver_scanner_list:
             if solver():
-                logging.debug('Solver %s changed something', solver.im_func)
+                logging.debug('Solver %s changed something', solver.__func__)
                 if not self.validate():
-                    logging.error('Solver %s messed up', solver.im_func)
+                    logging.error('Solver %s messed up', solver.__func__)
                     sys.exit(2)
                 return True
         return False
