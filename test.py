@@ -65,8 +65,8 @@ class TestSudokuField(unittest.TestCase):
     def test_constructor(self):
         for row in range(9):
             for col in range(9):
-                self.assertEquals(self.empty_field._field[row][col].get_num(), 0)
-        self.assertEquals(self.empty_field.description, '')
+                self.assertEqual(self.empty_field._field[row][col].get_num(), 0)
+        self.assertEqual(self.empty_field.description, '')
 
     def test_constructor_with_test_case(self):
         self.assertEqual(sudoku_testcases[1]['description'], self.field.description)
