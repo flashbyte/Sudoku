@@ -17,9 +17,9 @@ class sudoku_field(object):
             for cols in range(9):
                 row.append(num_field.num_field())
             self._field.append(row)
-        row_posibility = [set([1, 2, 3, 4, 5, 6, 7, 8, 9]) for i in range(9)]
-        col_posibility = [set([1, 2, 3, 4, 5, 6, 7, 8, 9]) for i in range(9)]
-        block_posibility = [set([1, 2, 3, 4, 5, 6, 7, 8, 9]) for i in range(9)]
+        self.row_possibility = [set([1, 2, 3, 4, 5, 6, 7, 8, 9]) for i in range(9)]
+        #col_possibility = [set([1, 2, 3, 4, 5, 6, 7, 8, 9]) for i in range(9)]
+        #block_possibility = [set([1, 2, 3, 4, 5, 6, 7, 8, 9]) for i in range(9)]
         if sudoku:
             for row in range(9):
                 for col in range(9):
@@ -45,7 +45,7 @@ class sudoku_field(object):
     def debug_board(self, befor_stat):
         header = "+---------befor---------+\t+----------now----------+"
         footer = "+-----------------------+\t+-----------------------+"
-        line = "| %s %s %s | %s %s %s | %s %s %s |\t| %s %s %s | %s %s %s | %s %s %s |"
+        line = "| %s %s %s | %s %s %s | %s %s %s |\t| %s %s %s | %s %s %s | %s %s %s | \t"
         line2 = "| ----- | ----- | ----- |\t| ----- | ----- | ----- |"
         board = "%s\n%s\n%s\n"
 
@@ -53,7 +53,7 @@ class sudoku_field(object):
         for row in range(9):
             befor_row = befor_stat._field[row]
             now_row = self._field[row]
-            values = tuple(befor_row) + tuple(now_row)
+            values = tuple(befor_row) + tuple(now_row) + tuple(([str(self.row_possibility[row])]))
             board_str += line % (values)
             if row != 8:
                 board_str += '\n'
@@ -207,6 +207,11 @@ class sudoku_field(object):
         for row in self._field:
             if self._remove_possibilities_from_bulk(row):
                 changed = True
+        for row in range(9):
+            for element in self._field[row]:
+                if element.is_solved():
+                    self.row_possibility[row].discard(element.get_num())
+                    changed = True
         return changed
 
     def _remove_possibilities_from_cols(self):

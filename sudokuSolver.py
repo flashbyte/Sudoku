@@ -42,7 +42,7 @@ def main():
         if my_suduko.is_solved():
             print('Solved:\n%s' % my_suduko)
         else:
-            print(';-( I am not smart enougth to solve this. Got so far:\n%s' % my_suduko)
+            print(';-( I am not smart enougth to solve this. Got so far:\n%s' % my_suduko.debug_board(my_suduko))
 
 
 if __name__ == '__main__':
