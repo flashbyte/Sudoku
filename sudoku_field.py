@@ -4,6 +4,7 @@ import sys
 import copy
 
 
+# TODO row and col posibilities
 # TODO: findout if there is something like for_each_for_echh
 class sudoku_field(object):
     """simple"""
@@ -16,6 +17,9 @@ class sudoku_field(object):
             for cols in range(9):
                 row.append(num_field.num_field())
             self._field.append(row)
+        row_posibility = [set([1, 2, 3, 4, 5, 6, 7, 8, 9]) for i in range(9)]
+        col_posibility = [set([1, 2, 3, 4, 5, 6, 7, 8, 9]) for i in range(9)]
+        block_posibility = [set([1, 2, 3, 4, 5, 6, 7, 8, 9]) for i in range(9)]
         if sudoku:
             for row in range(9):
                 for col in range(9):
