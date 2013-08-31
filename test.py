@@ -76,16 +76,32 @@ class TestSudokuField(unittest.TestCase):
                     self.assertEqual(sudoku_testcases[1]['testcase'][row][col], self.field._field[row][col].get_num())
 
     def test_get_block_as_list(self):
-        my_list = [i.get_num() for i in self.field._get_block_as_list(1)]
-        self.assertEqual(my_list, [0, 0, 7, 2, 0, 5, 8, 4, 1])
+        for row_start in range(0, 9, 3):
+            for col_start in range(0, 9, 3):
+                expected_list = []
+                block_id = int(row_start + (col_start / 3) + 1)
+                for row in range(row_start, row_start + 3):
+                    for col in range(col_start, col_start + 3):
+                        expected_list.append(self.field._field[row][col])
+                self.assertEqual(self.field._get_block_as_list(block_id), expected_list,
+                                 'List of block ' + str(block_id) + ' (' + str(row_start) + '/' 
+                                 + str(col_start) + ') num_field objects does not match expected list.')
 
     def test_get_col_as_list(self):
-        my_list = [i.get_num() for i in self.field._get_col_as_list(0)]
-        self.assertEqual(my_list, [0, 2, 8, 0, 0, 3, 0, 0, 0])
+        for col in range(0, 9):
+            expected_list = []
+            for row in range(0, 9):
+                expected_list.append(self.field._field[row][col])
+            self.assertEqual(self.field._get_col_as_list(col), expected_list, 
+                             'List of column ' + str(col) + ' num_field objects does not match expected list.')
 
     def test_get_row_as_list(self):
-        my_list = [i.get_num() for i in self.field._get_row_as_list(0)]
-        self.assertEqual(my_list, [0, 0, 7, 0, 2, 1, 5, 3, 0])
+        for row in range(0, 9):
+            expected_list = []
+            for col in range(0, 9):
+                expected_list.append(self.field._field[row][col])
+            self.assertEqual(self.field._get_row_as_list(row), expected_list, 
+                             'List of row ' + str(row) + ' num_field objects does not match expected list.')
 
     def test_validate(self):
         #TODO: Complet row, col and block check
