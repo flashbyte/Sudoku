@@ -308,15 +308,12 @@ class sudoku_field(object):
                 if num in element.get_set():
                     if num == 8:
                         logging.debug('Possibilities list %s for element: %s', element.get_set(), element_index)
-
                     my_set = set()
                     my_set.add(num)
                     element.set_possibilities(my_set)
                     logging.debug('Setting value %s for element: %s', num, element_index)
-                    print(self)
-
+                    logging.debug(self)
                 element_index += 1
-
         return changed
 
     def _scanning_rows(self):
