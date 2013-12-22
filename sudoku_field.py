@@ -201,9 +201,9 @@ class sudoku_field(object):
             for solver in solver_remover_list:
                 if solver():
                     changed = True
-                print("*** debug after solver %s ***" % (solver))
-                print(self.debug_str())
-                print("*** debug end ***")
+                logger.debug("*** debug after solver %s ***" % (solver))
+                logger.debug(self.debug_str())
+                logger.debug("*** debug end ***")
                 if not self.validate():
                     logging.error('%s medded up %s', solver)
                     sys.exit(2)
