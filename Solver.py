@@ -1,12 +1,32 @@
 import logging
 import sys
-import threading
 import BulkRemover
+import BulkScanner
 
 class Solver(object):
 
     def __init__(self, field):
         self.field = field
+
+    def solve(self):
+        """
+        Solver functions should only work on possibilities NOT on the number value
+        the number value is updated by self._update_field
+        """
+        success = False
+        changed = True
+        while changed:
+            changed = False
+            self._update_possibilities()
+            logging.debug("*** debug after update_possibilities() ***")
+            logging.debug(self.field)
+            logging.debug("*** debug end after possibilities ***")
+            if self._scanning():
+                changed = True
+            if self.field.is_solved():
+                success = True
+
+        return success
 
     def _update_possibilities(self):
         solver_remover_list = [
@@ -47,23 +67,7 @@ class Solver(object):
                 return True
         return False
 
-    """ Solver functions sould only work on posibilities NOT on the number value
-    the number value is updated by self._update_field """
-    def solve(self):
-        success = False
-        changed = True
-        while changed:
-            changed = False
-            self._update_possibilities()
-            logging.debug("*** debug after update_possibilities() ***")
-            logging.debug(self.field)
-            logging.debug("*** debug end after possibilities ***")
-            if self._scanning():
-                changed = True
-            if self.field.is_solved():
-                success = True
 
-        return success
 
     # -------- Remover algorithems --------
 
@@ -97,64 +101,56 @@ class Solver(object):
     # -------- Scanner algorithmes --------
     def _scanning_bulk(self, bulk):
         changed = False
-        # Make Union
-        bulk_union = set()
+        bulk_scanners = []
         for element in bulk:
-            bulk_union = bulk_union.union(element.get_set())
-            # Make intesec list
-        intesec_list = []
-        for element in bulk:
-            for element_intersec in bulk:
-                if element != element_intersec:
-                    intesec_list.append(element.get_set() & element_intersec.get_set())
-        intesec_list = [element_intersec for element_intersec in intesec_list if len(element_intersec) != 0]
-        # Make result set (union from everything minus every intesection)
-        result_set = bulk_union
-        for intersec in intesec_list:
-            result_set = result_set - intersec
-            # Nothing found ;-(
-        if len(result_set) == 0:
-            return False
-        else:
-            changed = True
+            bulk_scanner = BulkScanner.BulkScanner(element)
+            bulk_scanners.append(bulk_scanner)
+            bulk_scanner.start()
 
-        # Set found uniq numbers
-        for num in result_set:
-            element_index = 0
-            for element in bulk:
-                if num in element.get_set():
-                    if num == 8:
-                        logging.debug('Possibilities list %s for element: %s', element.get_set(), element_index)
-                    my_set = set()
-                    my_set.add(num)
-                    element.set_possibilities(my_set)
-                    logging.debug('Setting value %s for element: %s', num, element_index)
-                    logging.debug(self.field)
-                element_index += 1
+        for bulk_scanner in bulk_scanners:
+            bulk_scanner.join()
+            changed = changed or bulk_scanner.changed
+
         return changed
 
     def _scanning_rows(self):
-        changed = False
-        row_index = 0
-        for row in self.field._field:
-            logging.debug('Scanning row: %s', row_index)
-            if self._scanning_bulk(row):
-                changed = True
-            row_index += 1
-        return changed
+
+        return self._scanning_bulk(self.field._field)
+        #
+        # changed = False
+        # row_index = 0
+        #
+        #
+        #
+        # for row in self.field._field:
+        #     logging.debug('Scanning row: %s', row_index)
+        #     if self._scanning_bulk(row):
+        #         changed = True
+        #     row_index += 1
+        # return changed
 
     def _scanning_cols(self):
-        changed = False
-        for col in range(9):
-            col_list = self.field._get_col_as_list(col)
-            if self._scanning_bulk(col_list):
-                changed = True
-        return changed
+
+        columns = [self.field._get_col_as_list(columnIndex) for columnIndex in range(9)]
+
+        return self._scanning_bulk(columns)
+        #
+        # changed = False
+        # for col in range(9):
+        #     col_list = self.field._get_col_as_list(col)
+        #     if self._scanning_bulk(col_list):
+        #         changed = True
+        # return changed
 
     def _scanning_blocks(self):
-        changed = False
-        for block_id in range(1, 10):
-            block = self.field._get_block_as_list(block_id)
-            if self._scanning_bulk(block):
-                changed = True
-        return changed
+
+        blocks = [self.field._get_block_as_list(blockIndex) for blockIndex in range(1, 10)]
+
+        return self._scanning_bulk(blocks)
+
+        # changed = False
+        # for block_id in range(1, 10):
+        #     block = self.field._get_block_as_list(block_id)
+        #     if self._scanning_bulk(block):
+        #         changed = True
+        # return changed
