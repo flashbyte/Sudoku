@@ -23,34 +23,46 @@ class sudoku_field(object):
                         self.set_field(row, col, sudoku[row][col])
 
     def __str__(self):
+        possibilities_field = []
+
+        for row in self._field:
+            possibilities_field.append([len(i.get_set()) for i in row])
+
+        p_lines = self.generate_printable_lines(possibilities_field)
+        interlaced_p_lines = self.interlace_printable_lines(p_lines)
+
         lines = self.generate_printable_lines(self._field)
         interlaced_lines = self.interlace_printable_lines(lines)
 
+        zipped_lines = zip(interlaced_lines, interlaced_p_lines)
+
         ret = ""
-        for line in interlaced_lines:
-            ret += line
+        for line_tuple in zipped_lines:
+            ret += line_tuple[0] + "\t" + line_tuple[1] + "\n"
+
+
 
         return ret
 
     def interlace_printable_lines(self, lines):
         interlaced_lines = []
 
-        interlaced_lines.append("+---------board---------+\n")
+        interlaced_lines.append("+---------board---------+")
 
         line_index = 1
         for line in lines:
             interlaced_lines.append(line)
-            if line_index % 3 == 0:
-                 interlaced_lines.append("| ----- | ----- | ----- |\n")
+            if line_index % 3 == 0 and line_index != 9:
+                 interlaced_lines.append("| ----- | ----- | ----- |")
             line_index += 1
-        interlaced_lines.append("+-----------------------+\n")
+        interlaced_lines.append("+-----------------------+")
 
         return interlaced_lines
 
     def generate_printable_lines(self, field):
         lines = []
         for row in field:
-            lines.append("| %s %s %s | %s %s %s | %s %s %s |\n" % tuple(row))
+            lines.append("| %s %s %s | %s %s %s | %s %s %s |" % tuple(row))
         return lines
 
     def debug_str(self):
@@ -220,6 +232,7 @@ class sudoku_field(object):
         while changed:
             changed = False
             self._update_possibilities()
+            print(self)
             if self._scanning():
                 changed = True
             if self.is_solved():
