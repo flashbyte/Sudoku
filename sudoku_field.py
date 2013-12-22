@@ -23,14 +23,36 @@ class sudoku_field(object):
                         self.set_field(row, col, sudoku[row][col])
 
     def __str__(self):
+        lines = self.generate_printable_lines(self._field)
+        interlaced_lines = self.interlace_printable_lines(lines)
+
         ret = ""
-        ret += "+---------board---------+\n"
-        for row in range(9):
-            ret += "| %s %s %s | %s %s %s | %s %s %s |\n" % (tuple(self._field[row]))
-            if row in (2, 5):
-                ret += "| ----- | ----- | ----- |\n"
-        ret += "+-----------------------+\n"
+        for line in interlaced_lines:
+            ret += line
+
         return ret
+
+
+    def interlace_printable_lines(self, lines):
+        interlaced_lines = []
+
+        interlaced_lines.append("+---------board---------+\n")
+
+        line_index = 1
+        for line in lines:
+            interlaced_lines.append(line)
+            if line_index % 3 == 0:
+                 interlaced_lines.append("| ----- | ----- | ----- |\n")
+            line_index += 1
+        interlaced_lines.append("+-----------------------+\n")
+
+        return interlaced_lines
+
+    def generate_printable_lines(self, field):
+        lines = []
+        for row in field:
+            lines.append("| %s %s %s | %s %s %s | %s %s %s |\n" % tuple(row))
+        return lines
 
     def __unicode__(self):
         return self.__str__()
@@ -161,6 +183,9 @@ class sudoku_field(object):
         return changed
 
     def _scanning(self):
+        """
+        asdfasdf asdfasdf
+        """
         solver_scanner_list = [
             self._scanning_rows,
             self._scanning_cols,
@@ -247,19 +272,30 @@ class sudoku_field(object):
 
         # Set found uniq numbers
         for num in result_set:
+            element_index = 0
             for element in bulk:
                 if num in element.get_set():
+                    if num == 8:
+                        logging.debug('Possibilities list %s for element: %s', element.get_set(), element_index)
+
                     my_set = set()
                     my_set.add(num)
                     element.set_possibilities(my_set)
+                    logging.debug('Setting value %s for element: %s', num, element_index)
+                    print(self)
+
+                element_index += 1
 
         return changed
 
     def _scanning_rows(self):
         changed = False
+        row_index = 0
         for row in self._field:
+            logging.debug('Scanning row: %s', row_index)
             if self._scanning_bulk(row):
                 changed = True
+            row_index += 1
         return changed
 
     def _scanning_cols(self):
