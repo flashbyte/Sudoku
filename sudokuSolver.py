@@ -15,7 +15,7 @@ def main():
     group.add_argument('-s', '--silent', dest='silent', action='store_true', help='Enables Silent Mode')
     parser.add_argument('-f', '--filename', dest='filename', help='Filename')
     parser.add_argument('-lt', '--list', dest='list_testcases', action='store_true', help='Liste availbe Sudoku Testcases')
-    parser.add_argument('sudoku', nargs='?', help='Sudoku to solve. Could be a Testace number or filename to valid Sudokufile')
+    parser.add_argument('sudoku', help='Sudoku to solve. Could be a Testace number or filename to valid Sudokufile')
     args = parser.parse_args()
 
     # Debuging?
