@@ -166,13 +166,18 @@ class sudoku_field(object):
             self._remove_possibilities_from_cols,
             self._remove_possibilities_from_blocks,
         ]
-        changed = False
-        for solver in solver_remover_list:
-            if solver():
-                changed = True
-            if not self.validate():
-                logging.error('%s medded up %s', solver)
-                sys.exit(2)
+        changed = True
+        while (changed):
+            changed = False
+            for solver in solver_remover_list:
+                if solver():
+                    changed = True
+                print("*** debug after solver %s ***" % (solver))
+                print(self.debug_str())
+                print("*** debug end ***")
+                if not self.validate():
+                    logging.error('%s medded up %s', solver)
+                    sys.exit(2)
         return changed
 
     def _scanning(self):
@@ -186,6 +191,7 @@ class sudoku_field(object):
                 logging.debug('Solver %s changed something', solver.__func__)
                 if not self.validate():
                     logging.error('Solver %s messed up', solver.__func__)
+                    logging.debug(self.debug_str())
                     sys.exit(2)
                 return True
         return False
@@ -197,6 +203,9 @@ class sudoku_field(object):
         while changed:
             changed = False
             self._update_possibilities()
+            logging.debug("*** debug after update_possibilities() ***")
+            logging.debug(self.debug_str())
+            logging.debug("*** debug end after possibilities ***")
             if self._scanning():
                 changed = True
             if self.is_solved():
