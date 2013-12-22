@@ -77,7 +77,7 @@ class Solver(object):
 
         for bulk_remover in bulk_removers:
             bulk_remover.join()
-            changed = changed and bulk_remover.changed
+            changed = changed or bulk_remover.changed
 
         return changed
 
