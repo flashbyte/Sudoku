@@ -3,6 +3,7 @@ import logging
 import argparse
 import os
 import sys
+import Solver
 from sudoku_reader import read_soduko_from_testcase, read_sudoku_from_file
 from testcases import sudoku_testcases
 
@@ -55,18 +56,14 @@ def main():
     if my_suduko:
         if not args.silent:
             print('Solving:\n%s' % my_suduko)
-            my_suduko.solve()
-            if my_suduko.is_solved():
+            solver = Solver.Solver(my_suduko)
+            success = solver.solve()
+            # my_suduko.solve()
+            if success:
                 print('Solved:\n%s' % my_suduko)
                 sys.exit(0)
             else:
                 print(';-( I am not smart enougth to solve this. Got so far:\n%s' % my_suduko)
-                sys.exit(42)
-        else:
-            my_suduko.solve()
-            if my_suduko.is_solved():
-                sys.exit(0)
-            else:
                 sys.exit(42)
 
 
