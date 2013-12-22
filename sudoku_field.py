@@ -32,6 +32,21 @@ class sudoku_field(object):
         ret += "+-----------------------+\n"
         return ret
 
+    def debug_str(self):
+        ret = "board and debug (num of possibilities)\n"
+        ret += "+---------board---------+\t"
+        ret += "+---------debug---------+\n"
+        for row in range(9):
+            ret += "| %s %s %s | %s %s %s | %s %s %s |\t" % (tuple(self._field[row]))
+            ret += "| %s %s %s | %s %s %s | %s %s %s |\n" % ( tuple([len(i.get_set()) for i in self._field[row]]) )
+            if row in (2, 5):
+                ret += "| ----- | ----- | ----- |\t"
+                ret += "| ----- | ----- | ----- |\n"
+        ret += "+-----------------------+\t"
+        ret += "+-----------------------+\n"
+        return ret
+
+
     def __unicode__(self):
         return self.__str__()
 
