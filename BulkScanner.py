@@ -46,5 +46,5 @@ class BulkScanner (threading.Thread):
                     my_set.add(num)
                     element.set_possibilities(my_set)
                     logging.debug('Setting value %s for element: %s', num, element_index)
-                    logging.debug(self.field)
+                    logging.debug(self.bulk)
                 element_index += 1
