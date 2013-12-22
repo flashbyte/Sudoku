@@ -1,5 +1,7 @@
 import logging
 import sys
+import threading
+import BulkRemover
 
 class Solver(object):
 
@@ -19,7 +21,7 @@ class Solver(object):
                 if solver():
                     changed = True
                 logging.debug("*** debug after solver %s ***" % (solver))
-                logging.debug(self)
+                logging.debug(self.field)
                 logging.debug("*** debug end ***")
                 if not self.field.validate():
                     logging.error('%s medded up %s', solver)
@@ -40,7 +42,7 @@ class Solver(object):
                 logging.debug('Solver %s changed something', solver.__func__)
                 if not self.field.validate():
                     logging.error('Solver %s messed up', solver.__func__)
-                    logging.debug(self)
+                    logging.debug(self.field)
                     sys.exit(2)
                 return True
         return False
@@ -54,7 +56,7 @@ class Solver(object):
             changed = False
             self._update_possibilities()
             logging.debug("*** debug after update_possibilities() ***")
-            logging.debug(self)
+            logging.debug(self.field)
             logging.debug("*** debug end after possibilities ***")
             if self._scanning():
                 changed = True
@@ -64,38 +66,33 @@ class Solver(object):
         return success
 
     # -------- Remover algorithems --------
-    """ Removes all posibilities from a bulk where bulk could be a row, a col or a block """
-    def _remove_possibilities_from_bulk(self, bulk):
+
+    def _remove_possibilites_from_bulk(self, bulk):
         changed = False
+        bulk_removers = []
         for element in bulk:
-            if element.is_solved():
-                for element_remove in bulk:
-                    if element_remove.remove_posibility(element.get_num()):
-                        changed = True
+            bulk_remover = BulkRemover.BulkRemover(element)
+            bulk_removers.append(bulk_remover)
+            bulk_remover.start()
+
+        for bulk_remover in bulk_removers:
+            bulk_remover.join()
+            changed = changed and bulk_remover.changed
+
         return changed
 
     def _remove_possibilities_from_rows(self):
-        changed = False
-        for row in self.field._field:
-            if self._remove_possibilities_from_bulk(row):
-                changed = True
-        return changed
+        return self._remove_possibilites_from_bulk(self.field._field)
 
     def _remove_possibilities_from_cols(self):
-        changed = False
-        for col in range(9):
-            col_list = self.field._get_col_as_list(col)
-            if self._remove_possibilities_from_bulk(col_list):
-                changed = True
-        return changed
+        columns = [self.field._get_col_as_list(columnIndex) for columnIndex in range(9)]
+
+        return self._remove_possibilites_from_bulk(columns)
 
     def _remove_possibilities_from_blocks(self):
-        changed = False
-        for block_id in range(1, 10):
-            block = self.field._get_block_as_list(block_id)
-            if self._remove_possibilities_from_bulk(block):
-                changed = True
-        return changed
+        blocks = [self.field._get_block_as_list(blockIndex) for blockIndex in range(1, 10)]
+
+        return self._remove_possibilites_from_bulk(blocks)
 
     # -------- Scanner algorithmes --------
     def _scanning_bulk(self, bulk):
@@ -132,7 +129,7 @@ class Solver(object):
                     my_set.add(num)
                     element.set_possibilities(my_set)
                     logging.debug('Setting value %s for element: %s', num, element_index)
-                    logging.debug(self)
+                    logging.debug(self.field)
                 element_index += 1
         return changed
 
