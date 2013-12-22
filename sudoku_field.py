@@ -23,14 +23,44 @@ class sudoku_field(object):
                         self.set_field(row, col, sudoku[row][col])
 
     def __str__(self):
+        possibilities_field = []
+
+        for row in self._field:
+            possibilities_field.append([len(i.get_set()) for i in row])
+
+        p_lines = self.generate_printable_lines(possibilities_field)
+        interlaced_p_lines = self.interlace_printable_lines(p_lines)
+
+        lines = self.generate_printable_lines(self._field)
+        interlaced_lines = self.interlace_printable_lines(lines)
+
+        zipped_lines = zip(interlaced_lines, interlaced_p_lines)
+
         ret = ""
-        ret += "+---------board---------+\n"
-        for row in range(9):
-            ret += "| %s %s %s | %s %s %s | %s %s %s |\n" % (tuple(self._field[row]))
-            if row in (2, 5):
-                ret += "| ----- | ----- | ----- |\n"
-        ret += "+-----------------------+\n"
+        for line_tuple in zipped_lines:
+            ret += line_tuple[0] + "\t" + line_tuple[1] + "\n"
         return ret
+
+    def interlace_printable_lines(self, lines):
+        interlaced_lines = []
+
+        interlaced_lines.append("+---------board---------+")
+
+        line_index = 1
+        for line in lines:
+            interlaced_lines.append(line)
+            if line_index % 3 == 0 and line_index != 9:
+                 interlaced_lines.append("| ----- | ----- | ----- |")
+            line_index += 1
+        interlaced_lines.append("+-----------------------+")
+
+        return interlaced_lines
+
+    def generate_printable_lines(self, field):
+        lines = []
+        for row in field:
+            lines.append("| %s %s %s | %s %s %s | %s %s %s |" % tuple(row))
+        return lines
 
     def debug_str(self):
         ret = "board and debug (num of possibilities)\n"
@@ -45,7 +75,6 @@ class sudoku_field(object):
         ret += "+-----------------------+\t"
         ret += "+-----------------------+\n"
         return ret
-
 
     def __unicode__(self):
         return self.__str__()
@@ -181,6 +210,9 @@ class sudoku_field(object):
         return changed
 
     def _scanning(self):
+        """
+        asdfasdf asdfasdf
+        """
         solver_scanner_list = [
             self._scanning_rows,
             self._scanning_cols,
@@ -271,19 +303,30 @@ class sudoku_field(object):
 
         # Set found uniq numbers
         for num in result_set:
+            element_index = 0
             for element in bulk:
                 if num in element.get_set():
+                    if num == 8:
+                        logging.debug('Possibilities list %s for element: %s', element.get_set(), element_index)
+
                     my_set = set()
                     my_set.add(num)
                     element.set_possibilities(my_set)
+                    logging.debug('Setting value %s for element: %s', num, element_index)
+                    print(self)
+
+                element_index += 1
 
         return changed
 
     def _scanning_rows(self):
         changed = False
+        row_index = 0
         for row in self._field:
+            logging.debug('Scanning row: %s', row_index)
             if self._scanning_bulk(row):
                 changed = True
+            row_index += 1
         return changed
 
     def _scanning_cols(self):
