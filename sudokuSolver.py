@@ -58,12 +58,18 @@ def main():
             print('Solving:\n%s' % my_suduko)
             solver = Solver.Solver(my_suduko)
             success = solver.solve()
-            # my_suduko.solve()
             if success:
                 print('Solved:\n%s' % my_suduko)
                 sys.exit(0)
             else:
                 print(';-( I am not smart enougth to solve this. Got so far:\n%s' % my_suduko)
+                sys.exit(42)
+        else:
+            solver = Solver.Solver(my_suduko)
+            success = solver.solve()
+            if success:
+                sys.exit(0)
+            else:
                 sys.exit(42)
 
 
